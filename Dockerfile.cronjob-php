@@ -1,0 +1,15 @@
+FROM dockerhub-isc.fpt.net/hifpt/hi-customer/nginx1.17-php7.3-fpm:production
+
+ADD hi-customer/ /var/www/html/
+
+RUN chmod -R 775 /var/www/html 
+
+# Add cronjob
+ADD crontabfile /etc/cron.d/
+RUN chmod 0644 /etc/cron.d/crontabfile
+# Apply cron job
+RUN crontab /etc/cron.d/crontabfile
+
+
+#Cronfile
+#* * * * * APP_ENV=production /usr/local/bin/php /var/www/html/_hi-customer-local/artisan schedule:run > /proc/$(cat /var/run/crond.pid)/fd/1 2>&1
