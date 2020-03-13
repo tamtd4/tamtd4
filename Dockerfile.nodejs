@@ -1,0 +1,18 @@
+FROM node:lts
+
+ADD loyalty-web-ui /html
+
+WORKDIR /html
+
+RUN set -x  \
+    && npm install  \
+    && npm audit fix --force    \
+    && npm run webpack:prod
+
+FROM dockerhub-isc.fpt.net/nginx-with-curl:latest
+
+COPY --from=0 /html/target/classes/static /html
+
+ADD nginx.conf /etc/nginx/nginx.conf
+ADD web.conf /etc/nginx/conf.d/
+RUN rm -f /etc/nginx/conf.d/default.conf
